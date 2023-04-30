@@ -1,73 +1,69 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity  } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useIsFocused } from "@react-navigation/native";
 import { AntDesign } from '@expo/vector-icons'; 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import axios from 'axios';
+import {signOut } from "firebase/auth";
+import { auth } from "./Firebase.js";
 
-function RotaScreen({navigation}) {
+function HomeScreen({route, navigation}) {
+
+const [getData, setData] = useState([]);
+const isFocused = useIsFocused();
+
+const logOutUser = () => {
+  signOut(auth).then(() => {
+    alert('Usuário deslogado com sucesso! ');
+    navigation.navigate('Login');
+    }).catch((error) => {
+      console.log(error); 
+    });
+};
+
+  useEffect(()=>{    
+    async function consultarDados(){
+      axios.get('https://644c548917e2663b9d049ecb.mockapi.io/cliente/')          
+      .then(function (response) {
+        setData(response.data);
+      }).catch(function (error) {
+        console.log(error);      
+      });      
+    }
+    consultarDados();
+  }, [isFocused])  
+
   const handleCadastroContato = () => {
     navigation.navigate('Contato');
   };
-  const handleEditContato = () => {
-    navigation.navigate('Editar');
-  };
+
   return (    
     <View style={styles.container}>
-        <View style={styles.containerList}>
-            <View style={styles.boxTitulo}>
-                <Text style={styles.tituloRota}>Lista de Contatos</Text>
-                <TouchableOpacity onPress={handleCadastroContato}>
-                  <AntDesign style={styles.titulo} name="plus" size={24} color="black" />
-                </TouchableOpacity>                
-            </View>
-            <View style={styles.box} >
-                <View style={styles.inner} >
-                <TouchableOpacity onPress={handleEditContato}>
-                    <Ionicons style={styles.icon} name="person-outline" size={35} />
-                    <Text style={styles.textoDivs}>Marcos Carlos</Text>
-                    <Text style={styles.descricaoEmAndamento}>(81) 98855-6589</Text>
-                </TouchableOpacity>                       
-            </View>
-            </View>
-            <View style={styles.box}>
-                <View style={styles.inner}>
-                  <TouchableOpacity onPress={handleEditContato}>
-                    <Ionicons style={styles.icon} name="person-outline" size={35} />
-                    <Text style={styles.textoDivs}>Livia Sátiro</Text>
-                    <Text style={styles.descricaoEmAndamento}>(81) 98855-6589</Text>
-                  </TouchableOpacity>
-                </View>
-            </View>
-            <View style={styles.box}>
-                <View style={styles.inner}>
-                  <TouchableOpacity onPress={handleEditContato}>
-                    <Ionicons style={styles.icon} name="person-outline" size={35} />
-                    <Text style={styles.textoDivs}>Eduarda Silva</Text>
-                    <Text style={styles.descricaoEmAndamento}>(81) 98855-6589</Text>
-                  </TouchableOpacity>
-                </View>
-            </View>
-            <View style={styles.box}>
-                <View style={styles.inner}>
-                  <TouchableOpacity onPress={handleEditContato}>
-                    <Ionicons style={styles.icon} name="person-outline" size={35} />
-                    <Text style={styles.textoDivs}>Carlos Silva</Text>
-                    <Text style={styles.descricaoEmAndamento}>(81) 98855-6589</Text>
-                  </TouchableOpacity>
-                </View>
-            </View>
-            <View style={styles.box}>
-                <View style={styles.inner}>
-                  <TouchableOpacity onPress={handleEditContato}>
-                    <Ionicons style={styles.icon} name="person-outline" size={35} />
-                    <Text style={styles.textoDivs}>Maria Silva</Text>
-                    <Text style={styles.descricaoEmAndamento}>(81) 98855-6589</Text>
-                  </TouchableOpacity>
-                </View>
-            </View>
-        </View>
+      <View style={styles.boxTitulo}>
+          <Text style={styles.tituloRota}>Lista de Contatos</Text>
+          <TouchableOpacity onPress={handleCadastroContato}>
+            <AntDesign style={styles.titulo} name="plus" size={24} color="black" />
+          </TouchableOpacity>  
 
+          <TouchableOpacity onPress={logOutUser}>
+          <Text style={styles.titulo}>Sair</Text>
+          </TouchableOpacity>
+
+      </View>
+          {
+            getData.map((linha, i) => (
+              <View style={styles.box} key={i}>
+                <View style={styles.inner} >
+                <TouchableOpacity onPress={()=>navigation.navigate('Editar',{id:linha.id})}>
+                    <Ionicons style={styles.icon} name="person-outline" size={35} />
+                    <Text style={styles.textoDivs}>{linha.nome}</Text>
+                    <Text style={styles.descricaoEmAndamento}>{linha.telefone}</Text>
+                </TouchableOpacity>                       
+                </View>
+              </View>                    
+              
+            ))
+          }                        
     </View>
  );
 }
@@ -158,4 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RotaScreen;
+export default HomeScreen;

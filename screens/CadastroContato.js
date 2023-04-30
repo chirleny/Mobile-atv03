@@ -1,26 +1,43 @@
-import * as React from 'react';
-import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import axios from 'axios';
 
-function CadastroContato({navigation}) {
+function CadastroContato({route, navigation}) {
     const handleHome = () => {
         navigation.navigate('Home');
-      };
+    };
+
+    const [getNome,setNome] = useState();
+    const [getEmail,setEmail] = useState();
+
+
+    async function inserirDados(){
+     axios.post('https://644c548917e2663b9d049ecb.mockapi.io/cliente/', {
+            nome: getNome,
+            email: getEmail
+        })
+        .then(function (response) {
+            alert('Contato inserido com sucesso! ');
+            navigation.navigate('Home');
+        })
+        .catch(function (error) {
+            console.log(error);
+        });  
+    }
+
   return (
-  <View style={{ backgroundColor: "#DFDEE0", alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', }}>
+  <View style={{ backgroundColor: "#DFDEE0",flex: 1,  alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', }}>
    
         <View style={styles.boxTitulo}>
             <AntDesign style={styles.titulo} name="arrowleft" size={24} color="black" onPress={handleHome}/>
             <Text style={styles.titulo}>Criar contato</Text>            
         </View>
 
-        <TextInput style={styles.input} placeholder="Nome"/>
-        <TextInput style={styles.input} placeholder="E-mail"/>
-        <TextInput style={styles.input} placeholder="Telefone"/>
+        <TextInput style={styles.input} placeholder="Nome" onChangeText={text => setNome(text)} value={getNome}/>
+        <TextInput style={styles.input} placeholder="E-mail" onChangeText={text => setEmail(text)} value={getEmail} />
 
-        <TouchableOpacity style={styles.botaoCadastro} onPress={handleHome}>
+        <TouchableOpacity style={styles.botaoCadastro} onPress={inserirDados}>
             <Text style={styles.textoBotao}>Salvar</Text>
         </TouchableOpacity>
         
@@ -44,7 +61,6 @@ const styles = StyleSheet.create({
         marginTop: 50,
         alignItems: 'center',
         justifyContent: 'center',
-        flex: 1,
         backgroundColor: '#FFFDFD'
     },
     botaoCadastro: {
